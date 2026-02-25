@@ -1,0 +1,232 @@
+1️⃣ DATABASE STRUCTURE (MongoDB Atlas)
+
+videotube (Database)
+├── users
+├── videos
+├── comments
+└── playlists (future)
+
+MongoDB Hierarchy:
+
+Cluster
+↓
+Database
+↓
+Collection
+↓
+Document
+
+2️⃣ ENVIRONMENT VARIABLES
+
+dotenv is a Node.js package that:
+
+Loads environment variables from a .env file into process.env.
+
+Why we use it:
+
+Avoid hardcoding secrets
+
+Secure database credentials
+
+Store JWT secret safely
+
+Manage configuration cleanly
+
+Example .env:
+
+MONGODB_URL=your_connection_string
+JWT_SECRET=your_secret_key
+PORT=3000
+
+3️⃣ BACKEND ARCHITECTURE FLOW (MVC Pattern)
+
+Request Flow:
+
+Client
+↓
+Route
+↓
+Controller
+↓
+Model
+↓
+Database
+↓
+Controller sends Response
+
+Definition:
+
+A controller handles the business logic of an API.
+It processes requests, interacts with models, and sends appropriate responses back to the client.
+
+4️⃣ DATABASE RELATIONSHIPS (MVP)
+
+User
+├── uploads → Video
+└── comments → Comment
+
+Video
+├── owner → User
+└── comments → Comment
+
+Comment
+├── owner → User
+└── video → Video
+
+Relationship Types:
+
+One User → Many Videos
+
+One User → Many Comments
+
+One Video → Many Comments
+
+5️⃣ PASSWORD SECURITY (bcrypt)
+
+Why hash passwords?
+
+Never store plain text passwords.
+If database is leaked, real passwords would be exposed.
+
+We hash them using bcrypt.
+
+Hashing Process:
+
+const salt = await bcrypt.genSalt(10);
+
+What it does:
+
+Generates random salt string
+
+10 is cost factor (salt rounds)
+
+Higher number = more secure but slower
+
+const hashedPassword = await bcrypt.hash(password, salt);
+
+What it does:
+
+Combines password + salt
+
+Applies bcrypt hashing algorithm
+
+Produces secure irreversible hash
+
+Example stored value in DB:
+
+$2b$10$Xk3Jd9sKdjf93kdkfj39dkf...
+
+Why use bcrypt.compare()?
+
+Because stored password is hashed.
+We cannot compare plain text directly.
+
+Instead we use:
+
+bcrypt.compare(enteredPassword, storedHashedPassword)
+
+6️⃣ JWT AUTHENTICATION SYSTEM
+
+JWT = JSON Web Token
+
+It is:
+
+Digitally signed token
+
+Used for authentication
+
+Stateless
+
+Stored on client side
+
+Why JWT?
+
+HTTP is stateless.
+Server does not remember users automatically.
+JWT allows authentication without storing sessions.
+
+Login Flow:
+
+1️⃣ User sends email & password
+2️⃣ Server verifies password
+3️⃣ Server generates JWT
+4️⃣ Sends JWT to client
+5️⃣ Client stores token
+6️⃣ Client sends token with every request
+7️⃣ Server verifies token
+8️⃣ Access granted
+
+JWT Structure:
+
+HEADER.PAYLOAD.SIGNATURE
+
+7️⃣ PROTECTED ROUTES
+
+What does protecting routes mean?
+
+Only authenticated (logged-in) users can access certain APIs.
+
+Without protection:
+
+Anyone can call API
+
+Even without login
+
+Even without token
+
+That is NOT secure
+
+Unprotected Example:
+
+router.post("/upload-video", uploadVideo);
+
+Protected Example:
+
+router.post("/upload-video", authMiddleware, uploadVideo);
+
+Now:
+
+Middleware checks token
+
+If valid → allow
+
+If invalid → reject
+
+8️⃣ AUTH MIDDLEWARE
+
+Auth middleware does:
+
+1️⃣ Reads token from request header
+2️⃣ Verifies token using JWT_SECRET
+3️⃣ Extracts user ID
+4️⃣ Fetches user from database
+5️⃣ Attaches user to req.user
+6️⃣ Calls next()
+
+If token invalid → return 401 Unauthorized
+
+Middleware intercepts HTTP requests before they reach the controller.
+Used for:
+
+Authentication
+
+Validation
+
+Logging
+
+Error handling
+
+9️⃣ CURRENT PROJECT STATUS (COMPLETED)
+
+✅ MongoDB Atlas setup
+✅ dotenv configuration
+✅ MVC structure
+✅ User model
+✅ Register API
+✅ Password hashing (bcrypt)
+✅ Login API
+✅ JWT token generation
+✅ Auth middleware
+✅ Protected route
+
+You have built a complete authentication system.

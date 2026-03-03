@@ -1,10 +1,13 @@
-import express from "express";
+
 import dotenv from "dotenv";
+dotenv.config({ path: "../.env" }); 
+import express from "express";
+console.log("ENV TEST:", process.env.CLOUDINARY_CLOUD_NAME);
+
 import connectDB from "./db/db.js";
 import app from "./app.js";
 
-
-dotenv.config({ path: "../.env" });  // FIXED
+ // FIXED
 
 // Connect to MongoDB Atlas
 connectDB();

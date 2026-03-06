@@ -2,12 +2,13 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" }); 
 import express from "express";
-console.log("ENV TEST:", process.env.CLOUDINARY_CLOUD_NAME);
-
 import connectDB from "./db/db.js";
 import app from "./app.js";
 
+
  // FIXED
+
+//only allow frontend to access backend
 
 // Connect to MongoDB Atlas
 connectDB();

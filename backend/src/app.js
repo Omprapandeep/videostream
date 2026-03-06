@@ -1,11 +1,15 @@
 // app.js
 import express from "express";
+import cors from "cors";
 import userRoutes from "./routes/user.routes.js";
 import videoRoutes from "./routes/video.routes.js";
 import likeRoutes from "./routes/like.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
 
 const app = express();
+app.use(
+  cors()
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // To parse URL-encoded data (e.g., from forms)

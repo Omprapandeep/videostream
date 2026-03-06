@@ -1,0 +1,329 @@
+src
+ ├── components
+ ├── pages
+ ├── services
+ ├── utils
+ └── context
+
+ src
+ ├── pages
+ │    ├── Login.jsx
+ │    ├── Register.jsx
+ │    ├── Home.jsx
+ │    └── VideoPage.jsx
+ │
+ ├── components
+ │    ├── Navbar.jsx
+ │    ├── VideoCard.jsx
+ │    └── CommentSection.jsx
+ │
+ ├── services
+ │    └── api.js
+ │
+ └── context
+      └── AuthContext.jsx
+
+
+browsertouter 
+In React, BrowserRouter is used to enable client-side routing
+. It lets your React app change pages without reloading the browser.
+User clicks Link
+       ↓
+URL changes
+       ↓
+BrowserRouter detects change
+       ↓
+Routes checks matching path
+       ↓
+Matched component renders
+
+# BrowserRouter (React Router)
+
+1. Definition
+BrowserRouter is a component from React Router used to enable client-side routing in React applications. It allows navigation between pages without reloading the browser.
+
+2. Why BrowserRouter is Used
+Traditional websites reload the entire page when navigating between URLs like /home, /about, /contact. In React Single Page Applications (SPA), BrowserRouter allows only the component to change instead of reloading the whole page, making navigation faster.
+
+3. Installation
+npm install react-router-dom
+
+4. Import
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+5. Basic Example
+<BrowserRouter>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/about" element={<About />} />
+  </Routes>
+</BrowserRouter>
+
+6. Components
+BrowserRouter → Enables routing
+Routes → Container for all routes
+Route → Maps URL path to a component
+
+7. How BrowserRouter Works
+BrowserRouter uses the Browser History API:
+history.pushState()
+history.replaceState()
+window.onpopstate
+Flow: User clicks link → URL changes → Router matches route → Correct component renders (no page reload)
+
+8. Navigation
+Use Link instead of <a> to prevent page reload.
+import { Link } from "react-router-dom";
+<Link to="/about">About</Link>
+
+9. Programmatic Navigation
+import { useNavigate } from "react-router-dom";
+const navigate = useNavigate();
+navigate("/dashboard");
+
+10. Dynamic Routes
+<Route path="/video/:id" element={<Video />} />
+Example URL: /video/45
+
+11. Types of Routers
+BrowserRouter → Uses HTML5 History API
+HashRouter → Uses # in URL
+MemoryRouter → Stores history in memory (testing)
+
+12. Advantages
+No full page reload
+Faster navigation
+Clean URLs
+Supports dynamic routing
+Used in Single Page Applications
+
+Interview One Line:
+BrowserRouter is a React Router component that enables client-side routing using the browser History API without reloading the page.
+
+
+1. What is fetch?
+
+fetch() is a built-in browser API used to make HTTP requests.
+
+You do not need to install anything.
+
+Example:
+
+fetch("/api/videos")
+  .then(res => res.json())
+  .then(data => console.log(data));
+Pros
+
+Built into the browser
+
+No installation required
+
+Standard JavaScript API
+
+Cons
+
+Needs extra steps for JSON conversion
+
+Doesn't automatically handle errors well
+
+More code needed for complex requests
+
+2. What is Axios?
+
+Axios is a third-party library used to make HTTP requests.
+
+You must install it:
+
+npm install axios
+
+Example:
+
+import axios from "axios";
+
+axios.get("/api/videos")
+  .then(res => console.log(res.data));
+Pro
+Automatically converts JSON
+Better error handling
+Simpler syntax
+Supports request/response interceptors
+Easy to send headers (like JWT tokens)
+
+
+In React Router, Link is used to navigate between pages (routes) without reloading the browser.
+What Link Does
+
+Link changes the URL in the browser and tells React Router to render the corresponding component, but it does not reload the page.
+
+Example idea:
+
+User clicks Home
+
+URL changes to /home
+
+React Router loads the Home component
+
+Page does not refresh
+
+//cors ................
+When your React app tries to call:
+
+http://localhost:3000/api/videos/all
+
+the browser blocks it for security because the backend did not allow requests from 5173.
+app.use(cors());
+
+Allow only your frontend:
+
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
+After Fix
+
+Flow becomes:
+
+React (5173)
+      ↓
+Request → backend (3000)
+      ↓
+Backend allows origin
+      ↓
+Response sent
+      ↓
+React receives data
+
+ORS (Cross-Origin Resource Sharing) is a browser security mechanism that blocks requests between different origins unless the server explicitly allows them using headers like Access-Control-Allow-Origin.
+How Proxy Works
+
+Normally your frontend calls:
+
+http://localhost:3000/api/videos/all
+
+But with proxy you call:
+
+/api/videos/all
+
+Then the dev server automatically forwards it to:
+
+http://localhost:3000/api/videos/all
+How to Setup Proxy (Vite)
+
+Since your React project is running on Vite (port 5173), open:
+
+vite.config.js
+
+Add proxy configuration.
+
+Example:
+
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    proxy: {
+      "/api": "http://localhost:3000"
+    }
+  }
+});
+
+Restart your frontend after changing this.
+
+How You Call API After Proxy
+
+Before proxy:
+
+axios.get("http://localhost:3000/api/videos/all");
+
+After proxy:
+
+axios.get("/api/videos/all");
+
+Now Vite forwards the request to the backend.
+
+Benefits of Proxy
+
+No CORS error during development
+
+Cleaner API calls
+
+No need to expose backend URL everywhere
+
+Works automatically
+
+
+/......
+In React Router, useParams is a hook used to get dynamic values (parameters) from the URL.
+
+It is commonly used when the URL contains variables, like an ID, username, video id, etc.
+In your router you define it like this:
+<Route path="/video/:id" element={<VideoPage />} />
+Here:
+:id → dynamic parameter
+React Router will capture the value from URL
+
+
+//navigation
+useNavigate is a React Router hook used to navigate (redirect) from one page to another programmatically in a React application.
+
+It comes from the library React Router and is commonly used when you want to move the user to another route after some action like login, form submit, button click, etc.
+Example Usage
+import { useNavigate } from "react-router-dom";
+const navigate = useNavigate();
+navigate("/dashboard");
+diff in link and navigation 
+Link is a component used in JSX to create clickable links that navigate to different routes without reloading the page. It is used for navigation through user interaction (clicking).
+Feature	Link	useNavigate
+Used in JSX	✅	❌
+Used in functions	❌	✅
+Button click navigation	❌	✅
+UI navigation	✅	❌
+
+//............
+This code is using Axios request interceptor to automatically attach the JWT token to every API request.
+The library used here is Axios.
+React App
+   ↓
+Interceptor runs
+   ↓
+Token added to request
+   ↓
+Request goes to backend
+Request created
+     ↓
+Interceptor modifies config
+     ↓
+config returned
+     ↓
+Request sent to server
+
+//6️⃣ Why This is Important
+
+Without interceptor:
+
+axios.get("/videos", {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+});
+
+You would need to add this in every request.
+
+With interceptor:
+
+axios.get("/videos");
+axios.post("/videos");
+axios.delete("/videos/1");
+
+Token automatically added.
+
+Click Submit
+↓
+preventDefault() stops reload
+↓
+React handles form
+↓
+Send API request

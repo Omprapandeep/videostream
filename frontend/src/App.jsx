@@ -6,6 +6,7 @@ import Register from "./pages/Register"
 import VideoPage from "./pages/VideoPage"
 import Navbar from "./components/Navbar"
 import UploadVideo from "./pages/UploadVideo"
+import Mychannel from "./pages/Mychannel"
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/video/:id" element={<VideoPage />} />
         <Route path="/upload" element={<UploadVideo />}  />
+        <Route path="/mychannel" element={<Mychannel />}  />
+
       </Routes>
        
     

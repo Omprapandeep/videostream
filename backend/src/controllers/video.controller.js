@@ -30,6 +30,7 @@ export const uploadVideo = async (req, res) => {
             description,
             videoUrl: req.file.path, // Assuming you're using Cloudinary and want to store the uploaded file's path
             thumbnailUrl: thumbnailUrl,
+            publicId:publicId,
             owner: req.user._id
         });
 
@@ -140,3 +141,71 @@ export const getsinglevideo = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 }
+
+export const deletevideo = async (req,res)=>{
+    try{
+       const videoid = req.params.videoId;
+       
+       const video = await Video.findById(videoid);
+
+
+       if(!video){
+        return res.status(404).json({message:"video not found"});
+
+       }
+
+       //check ownership
+
+       if(video.owner.toString() != req.user._id.toString()){
+        return  res.status(403).json({
+            message: "You are not allowed to delete this video",
+            error: err.message
+        });
+       }
+       
+       //delete from cloudinary
+
+       await cloudinary.uploader.destroy(video.publicId,{
+        resource_type:"video"
+       })
+
+       //delete likes comment 
+       await Like.deleteMany({video:videoid});
+       await Comment.deleteMany({video:videoid});
+
+         // delete video document
+        await Video.findByIdAndDelete(videoid);
+
+       
+        res.json({ message: "Video deleted successfully" });
+    }catch(err){
+         res.status(500).json({
+            message: "Failed to delete video",
+            error: err.message
+        });
+    }
+}
+
+export const getMyVideos = async (req, res) => {
+    try {
+
+        const userId = req.user._id;
+
+        const videos = await Video.find({ owner: userId })
+            .select("title thumbnailUrl views createdAt")
+            .sort({ createdAt: -1 })
+            .lean();
+
+        res.status(200).json({
+            message: "User videos fetched",
+            totalVideos: videos.length,
+            videos
+        });
+
+    } catch (err) {
+        res.status(500).json({
+            message: "Failed to get user videos",
+            error: err.message
+        });
+    }
+};

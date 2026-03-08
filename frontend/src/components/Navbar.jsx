@@ -88,6 +88,10 @@ const Navbar = () => {
               {user.username}
             </span>
 
+            <Link to="/mychannel">
+              My Channel
+            </Link>
+
             {/* Logout */}
             <button
               onClick={logout}

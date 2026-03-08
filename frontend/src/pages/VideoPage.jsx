@@ -154,7 +154,7 @@ const VideoPage = () => {
 
   return (
 
-    <div className="h-[calc(100vh-65px)] overflow-hidden bg-gray-100 px-6 lg:px-10 py-3">
+    <div className="h-[calc(100vh-67px)] overflow-hidden bg-gray-100 px-6 lg:px-10 py-3">
       <div className="max-w-10xl mx-auto h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* LEFT SIDE - VIDEO */}

@@ -21,6 +21,10 @@ const videoSchema = new mongoose.Schema( {
     views: {
       type: Number,
       default: 0
+    },
+    publicId:{
+      type:String,
+      required:true
     }
   },
   { timestamps: true }

@@ -25,7 +25,7 @@ export const getcomments = async (req,res)=>{
     try{
        const videoId = req.params.videoId;
 
-       const comments= (await Comment.find({video:videoId}).populate("owner","username")).toSorted({createdAt:-1})
+       const comments= await Comment.find({video:videoId}).populate("owner","username").sort({ createdAt: -1 });
        
        res.status(200).json({message:"comments fetched successfully",comments})
     }catch(err){

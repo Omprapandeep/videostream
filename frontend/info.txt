@@ -340,3 +340,30 @@ upload.single("video")
 The name video must match:
 
 formData.append("video", video)
+
+
+//comment part
+
+///What [id] Means
+
+The second parameter of useEffect is called the dependency array.
+
+[id]
+
+It means:
+
+Run this effect whenever id changes.
+
+Open video page
+↓
+id = abc123
+↓
+fetch data
+
+User clicks new video
+↓
+id = xyz999
+↓
+useEffect runs again
+↓
+new data loaded

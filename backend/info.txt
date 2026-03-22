@@ -2757,3 +2757,35 @@ Authorization vs Authentication
 Resource cleanup (Cloud + DB consistency)
 
 Real-world backend patterns
+
+
+//video delete from cloudinary 
+1️⃣ What Cloudinary Returns When Uploading
+
+When a video is uploaded, Cloudinary gives something like:
+
+https://res.cloudinary.com/demo/video/upload/v1712345/abcd1234.mp4
+
+In multer-storage-cloudinary:
+
+req.file.path      → video URL
+req.file.filename  → public_id
+
+Example:
+
+req.file.path
+// https://res.cloudinary.com/demo/video/upload/v1712345/abcd1234.mp4
+
+req.file.filename
+// abcd1234
+2️⃣ Why publicId Must Be Stored
+
+When deleting from Cloudinary you must call:
+
+cloudinary.uploader.destroy(publicId)
+
+Example:
+
+cloudinary.uploader.destroy("abcd1234", { resource_type: "video" })
+
+If you only stored the URL, Cloudinary cannot delete the file.

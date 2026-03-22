@@ -30,7 +30,7 @@ export const uploadVideo = async (req, res) => {
             description,
             videoUrl: req.file.path, // Assuming you're using Cloudinary and want to store the uploaded file's path
             thumbnailUrl: thumbnailUrl,
-            publicId:publicId,
+            publicId: publicId,
             owner: req.user._id
         });
 
@@ -112,11 +112,23 @@ export const getsinglevideo = async (req, res) => {
     try {
         const videoId = req.params.videoId;
 
-        const video = await Video.findByIdAndUpdate(
-            videoId,
-            { $inc: { views: 1 } },
-            { returnDocument: "after" }
-        ).populate("owner", "username")
+        // 🔥 check query param
+        const shouldIncrement = req.query.increment === "true";
+
+        let query;
+
+        if (shouldIncrement) {
+            query = Video.findByIdAndUpdate(
+                videoId,
+                { $inc: { views: 1 } },
+                { returnDocument:'after' }
+            );
+        } else {
+            query = Video.findById(videoId);
+        }
+
+        const video = await query
+            .populate("owner", "username")
             .select("title description videoUrl thumbnailUrl views createdAt owner")
             .lean();
 
@@ -135,51 +147,49 @@ export const getsinglevideo = async (req, res) => {
             comments: commentCount
         });
 
-
-
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
-}
+};
 
-export const deletevideo = async (req,res)=>{
-    try{
-       const videoid = req.params.videoId;
-       
-       const video = await Video.findById(videoid);
+export const deletevideo = async (req, res) => {
+    try {
+        const videoid = req.params.videoId;
+
+        const video = await Video.findById(videoid);
 
 
-       if(!video){
-        return res.status(404).json({message:"video not found"});
+        if (!video) {
+            return res.status(404).json({ message: "video not found" });
 
-       }
+        }
 
-       //check ownership
+        //check ownership
 
-       if(video.owner.toString() != req.user._id.toString()){
-        return  res.status(403).json({
-            message: "You are not allowed to delete this video",
-            error: err.message
-        });
-       }
-       
-       //delete from cloudinary
+        if (video.owner.toString() != req.user._id.toString()) {
+            return res.status(403).json({
+                message: "You are not allowed to delete this video",
+                error: err.message
+            });
+        }
 
-       await cloudinary.uploader.destroy(video.publicId,{
-        resource_type:"video"
-       })
+        //delete from cloudinary
 
-       //delete likes comment 
-       await Like.deleteMany({video:videoid});
-       await Comment.deleteMany({video:videoid});
+        await cloudinary.uploader.destroy(video.publicId, {
+            resource_type: "video"
+        })
 
-         // delete video document
+        //delete likes comment 
+        await Like.deleteMany({ video: videoid });
+        await Comment.deleteMany({ video: videoid });
+
+        // delete video document
         await Video.findByIdAndDelete(videoid);
 
-       
+
         res.json({ message: "Video deleted successfully" });
-    }catch(err){
-         res.status(500).json({
+    } catch (err) {
+        res.status(500).json({
             message: "Failed to delete video",
             error: err.message
         });
@@ -192,7 +202,7 @@ export const getMyVideos = async (req, res) => {
         const userId = req.user._id;
 
         const videos = await Video.find({ owner: userId })
-            .select("title thumbnailUrl views createdAt")
+            .select("title description thumbnailUrl views createdAt")
             .sort({ createdAt: -1 })
             .lean();
 
@@ -209,3 +219,36 @@ export const getMyVideos = async (req, res) => {
         });
     }
 };
+
+//update video
+
+export const updatevideo = async (req, res) => {
+    try {
+        const { title, description } = req.body;
+
+
+        const video = await Video.findById(req.params.videoId);
+        if (!video) {
+            return res.status(404).json({ message: "video not found" });
+        }
+
+        //owner check
+        if (video.owner.toString() != req.user.id) {
+            return res.status(403).json({ message: "unauthorized" })
+        }
+
+        //update
+        if (title) video.title = title;
+        if (description) video.description = description;
+
+        const updatevideo = await video.save();
+        res.json(updatevideo);
+
+    } catch (err) {
+        res.status(500).json({
+            message: "failed to update video",
+            error: err.message
+        }
+        )
+    }
+}

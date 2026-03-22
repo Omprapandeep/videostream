@@ -60,8 +60,19 @@ const VideoPage = () => {
 
   const fetchVideo = async () => {
     try {
-      const res = await api.get(`/videos/${id}`);
+      const viewedKey = `viewed_${id}`;
+      const alreadyViewed = sessionStorage.getItem(viewedKey);
+
+      const res = await api.get(
+        `/videos/${id}?increment=${!alreadyViewed}`
+      );
+
       setVideo(res.data);
+
+      // mark as viewed
+      if (!alreadyViewed) {
+        sessionStorage.setItem(viewedKey, "true");
+      }
     } catch (err) {
       console.log(err);
     }

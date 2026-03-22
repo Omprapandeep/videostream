@@ -5,6 +5,10 @@ import { FaTrash, FaEdit, FaEye, FaVideo } from "react-icons/fa";
 const Mychannel = () => {
   const [videos, setvideos] = useState([]);
   const [deletingid, setdeletingid] = useState(null);
+  const [selectedvideo, setselectedvideo] = useState(null);
+  const [title, settitle] = useState("");
+  const [description, setdescription] = useState("");
+  const [showmodal, setshowmodal] = useState(false);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -32,6 +36,35 @@ const Mychannel = () => {
       setdeletingid(null);
     }
   };
+
+  const handleedit = (video) => {
+    console.log(video);
+    setselectedvideo(video);
+    settitle(video.title);
+    setdescription(video.description);
+    setshowmodal(true);
+  }
+
+  const handleupdate = async () => {
+    try {
+      const res = await api.put(`/videos/${selectedvideo._id}`, {
+        title,
+        description
+      });
+
+      //state change
+      setvideos(prev => prev.map(v => v._id === selectedvideo._id ? res.data : v));
+
+      //close modal
+      setshowmodal(false);
+      setselectedvideo(null);
+      settitle("");
+      setdescription("");
+    }
+    catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -117,6 +150,7 @@ const Mychannel = () => {
 
               {/* Edit Button */}
               <button
+                onClick={() => handleedit(video)}
                 className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-100 rounded-md hover:bg-blue-200 transition cursor-pointer"
               >
                 <FaEdit />
@@ -156,6 +190,66 @@ const Mychannel = () => {
         )}
 
       </div>
+
+      {/* popup */}
+      {showmodal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+
+          {/* Background overlay */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setshowmodal(false)}
+          />
+
+          {/* Modal Card */}
+          <div className="relative w-100  bg-white  p-6 rounded-2xl shadow-2xl transform transition-all scale-100">
+
+            {/* Title */}
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">
+              Edit Video
+            </h2>
+
+            {/* Input */}
+            <div className="text-sm" >Title</div>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => settitle(e.target.value)}
+              className="w-full border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none p-2 rounded-md mb-3 transition"
+              placeholder="Enter title"
+            />
+
+            {/* Textarea */}
+            <div  className="text-sm">Description</div>
+            <textarea
+              value={description}
+              onChange={(e) => setdescription(e.target.value)}
+              className="w-full border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none p-2 rounded-md mb-4 transition"
+              placeholder="Enter description"
+            />
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-2">
+
+              <button
+                onClick={() => setshowmodal(false)}
+                className="px-4 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300 text-sm"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleupdate}
+                className="px-4 py-1.5 rounded-md bg-blue-500 hover:bg-blue-600 text-white text-sm shadow-md"
+              >
+                Save Changes
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

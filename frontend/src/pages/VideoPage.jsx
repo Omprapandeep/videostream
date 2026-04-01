@@ -193,7 +193,9 @@ const VideoPage = () => {
           <div className="flex items-center justify-between mt-4">
 
             {/* Channel */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 cursor-pointer"
+             onClick={()=> navigate(`/channel/${video.owner._id}`)}
+             >
 
               <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">
                 {video.owner?.username?.charAt(0).toUpperCase()}

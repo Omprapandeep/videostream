@@ -252,3 +252,23 @@ export const updatevideo = async (req, res) => {
         )
     }
 }
+
+//get the channel videos
+export const getchannelvideos = async(req,res)=>{
+    try{
+        const userId = req.params.userId;
+
+        const videos = await Video.find({owner:userId})
+        .select("title description thumbnailUrl views likes createdAt")
+        .populate("owner","username")
+        .sort({createdAt:-1})
+        .lean();  //lean for better performance since we are only reading data and not using mongoose document methods
+
+        res.json({
+            videos,
+            totalVideos: videos.length
+        })
+    }catch(err){
+        res.status(500).json({message:"failed to get channel videos",error:err.message})
+    }
+};

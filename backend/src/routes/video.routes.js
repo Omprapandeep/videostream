@@ -1,5 +1,5 @@
 import express from "express";
-import { uploadVideo,getAllvideos,getsinglevideo,deletevideo,getMyVideos,updatevideo } from "../controllers/video.controller.js";
+import { uploadVideo,getAllvideos,getsinglevideo,deletevideo,getMyVideos,updatevideo, getchannelvideos } from "../controllers/video.controller.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/cloudinaryupload.middleware.js";
 
@@ -12,6 +12,8 @@ router.get("/all", getAllvideos);
 router.get("/myvideos",authMiddleware,getMyVideos);
 
 router.put("/:videoId",authMiddleware,updatevideo);
+
+router.get("/channel/:userId",getchannelvideos);
 
 router.delete("/:videoId",authMiddleware,deletevideo);
 

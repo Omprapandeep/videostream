@@ -7,6 +7,7 @@ import VideoPage from "./pages/VideoPage"
 import Navbar from "./components/Navbar"
 import UploadVideo from "./pages/UploadVideo"
 import Mychannel from "./pages/Mychannel"
+import Channelpage from "./pages/Channelpage"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/video/:id" element={<VideoPage />} />
         <Route path="/upload" element={<UploadVideo />}  />
         <Route path="/mychannel" element={<Mychannel />}  />
+        <Route path="/channel/:userId" element={<Channelpage />}  />
 
       </Routes>
        

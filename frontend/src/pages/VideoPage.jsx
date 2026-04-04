@@ -4,6 +4,7 @@ import api from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 
+
 const timeAgo = (date) => {
   const seconds = Math.floor((new Date() - new Date(date)) / 1000);
 
@@ -35,6 +36,9 @@ const VideoPage = () => {
   const [commenttext, setcommenttext] = useState("");
 
   const [likes, setlikes] = useState(0);
+  const [subscribed, setsubscribed] = useState(false);
+  const [subcount, setsubcount] = useState(0);
+  const [subloading, setsubloading] = useState(false);
 
   useEffect(() => {
     fetchVideo();
@@ -43,6 +47,11 @@ const VideoPage = () => {
     fetchlikes();
   }, [id]);
 
+  useEffect(() => {
+    if (video?.owner?._id) {
+      fetchsubscription();
+    }
+  }, [video]);
 
   //comment fetch .
 
@@ -100,6 +109,31 @@ const VideoPage = () => {
     }
   }
 
+  //fetch subscribe status and count
+
+  const fetchsubscription = async () => {
+    try {
+      if (!video?.owner?._id) return;
+      //
+      const videownerId = video.owner._id;
+      //getcount 
+      const res1 = await api.get(`/subscriptions/subscribers/${videownerId}`);
+      console.log(res1.data);
+      setsubcount(res1.data.subscribers);
+
+      //get status 
+      const token = localStorage.getItem("token");
+      if (token) {
+        const res2 = await api.get(`/subscriptions/${videownerId}/status`);
+        console.log(res2.data);
+        setsubscribed(res2.data.subscribed);
+      }
+
+    } catch (err) {
+      console.log("Failed to fetch subscription status", err);
+    }
+  };
+
 
   //handle  add comments 
 
@@ -154,6 +188,33 @@ const VideoPage = () => {
     }
   }
 
+  const handlesubscribe = async () => {
+    const token = localStorage.getItem("token");
+    // If user not logged in → redirect
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    if (subloading) return;
+
+    try {
+      setsubloading(true);
+
+      const res = await api.post(`/subscriptions/${video.owner._id}`)
+      setsubscribed(res.data.subscribed);
+
+      //instant update sub count based on action
+      setsubcount(prev => res.data.subscribed ? prev + 1 : prev - 1);
+
+    } catch (err) {
+      console.log("Failed to toggle subscription", err);
+    } finally {
+      setsubloading(false);
+    }
+
+  }
+
   if (!video)
     return (
       <div className="flex justify-center items-center h-screen">
@@ -169,10 +230,10 @@ const VideoPage = () => {
       <div className="max-w-10xl mx-auto h-full grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* LEFT SIDE - VIDEO */}
-        <div className="lg:col-span-2  overflow-y-auto pr-2 custom-scrollbar pb-5"  >
+        <div className="lg:col-span-2 overflow-y-auto pr-2 custom-scrollbar pb-8">
 
-          {/* Video Player */}
-          <div className=" w-full aspect-video bg-black rounded-xl overflow-hidden shadow-md border border-gray-200">
+          {/* 🎬 Video Player */}
+          <div className="w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-lg">
             <video
               src={video.videoUrl}
               controls
@@ -180,60 +241,94 @@ const VideoPage = () => {
             />
           </div>
 
-          {/* Title */}
-          <h1 className="text-2xl font-semibold mt-4">
+          {/* 📝 Title */}
+          <h1 className="text-2xl font-semibold mt-4 leading-snug">
             {video.title}
           </h1>
 
-          <p className="text-sm text-gray-600">
+          {/* 📊 Views */}
+          <p className="text-sm text-gray-500 mt-1">
             {video.views} views • {timeAgo(video.createdAt)}
           </p>
 
-          {/* Owner + Like */}
-          <div className="flex items-center justify-between mt-4">
+          {/* 🔥 Channel + Actions */}
+          <div className="flex items-center justify-between mt-5">
 
-            {/* Channel */}
-            <div className="flex items-center gap-3 cursor-pointer"
-             onClick={()=> navigate(`/channel/${video.owner._id}`)}
-             >
+            {/* LEFT: Channel Info */}
+            <div className="flex items-center gap-5">
 
-              <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold">
+              {/* Avatar */}
+              <div
+                className="w-11 h-11 rounded-full bg-gray-300 flex items-center justify-center font-bold text-lg cursor-pointer"
+                onClick={() => navigate(`/channel/${video.owner._id}`)}
+              >
                 {video.owner?.username?.charAt(0).toUpperCase()}
               </div>
 
+              {/* Name + Subs */}
               <div>
-                <p className="font-medium">{video.owner?.username}</p>
+                <p
+                  className="font-semibold cursor-pointer hover:underline"
+                  onClick={() => navigate(`/channel/${video.owner._id}`)}
+                >
+                  {video.owner?.username}
+                </p>
+
+                <p className="text-xs text-gray-500">
+                  {subcount} subscribers
+                </p>
               </div>
+
+              {/* 🔴 Subscribe Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlesubscribe();
+                }}
+                disabled={subloading}
+                className={`ml-4 px-5 py-2 text-sm cursor-pointer font-medium rounded-full transition ${subscribed
+                    ? "bg-gray-200 text-black"
+                    : "bg-red-600 hover:bg-red-700 text-white"
+                  } ${subloading && "opacity-50 cursor-not-allowed"}`}
+              >
+                {subloading
+                  ? ""
+                  : subscribed
+                    ? "Subscribed"
+                    : "Subscribe"}
+              </button>
 
             </div>
 
-            {/* Like */}
-            <button onClick={handlelike}
-              className="flex cursor-pointer items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-red-100 active:scale-95 rounded-full transition" >
-              ❤️ {likes}
+            {/* RIGHT: Like Button */}
+            <button
+              onClick={handlelike}
+              className="flex cursor-pointer items-center gap-2 px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-full transition active:scale-95"
+            >
+              <span className="text-lg">👍</span>
+              <span className="text-sm font-medium">{likes}</span>
             </button>
 
           </div>
 
-          {/* Description */}
+          {/* 📄 Description */}
           {video.description && (
-            <div className="mt-5 bg-white p-4 rounded-xl text-sm shadow-sm border border-gray-100">
+            <div className="mt-5 bg-gray-100 p-4 rounded-xl text-sm text-gray-800">
               {video.description}
             </div>
           )}
 
-          {/* Comments */}
+          {/* 💬 Comments */}
           <div className="mt-10">
 
             {/* Header */}
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">
-              Comments ({comments.length})
+            <h2 className="text-lg font-semibold mb-4">
+              {comments.length} Comments
             </h2>
 
             {/* Add Comment */}
-            <div className="flex items-start gap-3">
+            <div className="flex gap-3 mb-6">
 
-              {/* User Avatar */}
               <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-bold text-gray-700">
                 U
               </div>
@@ -242,22 +337,19 @@ const VideoPage = () => {
 
                 <input
                   type="text"
-                  placeholder="Write a comment..."
+                  placeholder="Add a comment..."
                   value={commenttext}
                   onChange={(e) => setcommenttext(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key == "Enter") {
-                      handleaddcomments();
-                    }
+                    if (e.key === "Enter") handleaddcomments();
                   }}
-                  className="w-full border-b border-gray-300 focus:border-red-500 outline-none py-2 text-sm"
+                  className="w-full border-b border-gray-300 focus:border-black outline-none py-2 text-sm bg-transparent"
                 />
 
-                {/* Post button */}
-                <div className="flex justify-end mt-2 ">
+                <div className="flex justify-end mt-2">
                   <button
                     onClick={handleaddcomments}
-                    className="bg-red-500 cursor-pointer hover:bg-red-700 text-white px-4 py-1.5 rounded-full text-sm transition"
+                    className="cursor-pointer bg-black text-white px-4 py-1.5 rounded-full text-sm hover:bg-gray-800 transition"
                   >
                     Comment
                   </button>
@@ -268,28 +360,28 @@ const VideoPage = () => {
             </div>
 
             {/* Comment List */}
-            <div className="mt-4 divide-y divide-gray-200">
+            <div className="space-y-5">
 
               {comments.map((comm) => (
 
-                <div key={comm._id} className="flex gap-3 py-4">
+                <div key={comm._id} className="flex gap-3">
 
                   {/* Avatar */}
-                  <div className="w-10 h-10  rounded-full bg-gray-300 flex items-center justify-center font-semibold text-gray-700">
+                  <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center font-semibold text-gray-700">
                     {comm.owner?.username?.charAt(0).toUpperCase()}
                   </div>
 
-                  {/* Comment Content */}
-                  <div className="flex flex-col">
+                  {/* Content */}
+                  <div>
 
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-medium">
                       {comm.owner?.username}
-                      <span className="text-gray-500 font-normal ml-2 text-xs">
-                        • {timeAgo(comm.createdAt)}
+                      <span className="text-gray-500 text-xs ml-2">
+                        {timeAgo(comm.createdAt)}
                       </span>
                     </p>
 
-                    <p className="text-sm text-gray-700 mt-1 leading-relaxed">
+                    <p className="text-sm text-gray-700 mt-1">
                       {comm.content}
                     </p>
 

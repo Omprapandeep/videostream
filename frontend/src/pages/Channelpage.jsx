@@ -31,7 +31,7 @@ const Channelpage = () => {
     }
 
     return (
-        <div className="bg-[#0f0f0f] h-[calc(100vh-66.8px)] text-white">
+        <div className="bg-[#0f0f0f] min-h-[calc(100vh-66.8px)] text-white">
 
 
             {/* 🔹 Header */}

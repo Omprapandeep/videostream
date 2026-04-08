@@ -4,8 +4,9 @@ import { FiUpload } from "react-icons/fi";
 import { FaUserCircle } from "react-icons/fa";
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { FiMenu } from "react-icons/fi";
 
-const Navbar = () => {
+const Navbar = ({ toggle }) => {
 
   const navigate = useNavigate();
 
@@ -55,17 +56,29 @@ const Navbar = () => {
   }
 
   return (
-    <nav className='bg-white border-b shadow-sm px-8 py-3 flex items-center justify-between'>
+    <nav className='bg-white border-b shadow-sm px-4 md:px-8 py-3 flex items-center justify-between'>
 
-      {/* Logo */}
-      <Link to="/" className='text-2xl font-bold text-red-600 tracking-wide'>
-        VideoTube
-      </Link>
+      <div className="flex items-center gap-4">
+
+        {/* Hamburger (desktop only) */}
+        <button
+          onClick={toggle}
+          className="hidden md:block p-2 hover:bg-gray-200 rounded-full"
+        >
+          <FiMenu size={22} />
+        </button>
+
+        {/* Logo */}
+        <Link to="/" className='text-2xl font-bold text-red-600 tracking-wide'>
+          VideoTube
+        </Link>
+
+      </div>
 
       {/* Search Bar */}
       {/* Search Bar */}
       <div className="flex-1 max-w-xl mx-8">
-        <div className="relative"  onClick={(e) => e.stopPropagation()}>{/*  //event bubbling */}
+        <div className="relative" onClick={(e) => e.stopPropagation()}>{/*  //event bubbling */}
           {suggestions.length > 0 && (
             <div className="absolute top-full left-0 w-full bg-white border mt-1 rounded-md shadow-lg z-50">
 
@@ -127,23 +140,21 @@ const Navbar = () => {
       </div>
 
       {/* Right Side */}
-      <div className="flex items-center gap-5">
+     <div className="flex items-center gap-3 md:gap-5">
 
         {user ? (
 
           <>
-            
-            <Link to="/feed">
-              Feed
-            </Link>
-            
+
+          
+
             {/* Upload */}
             <Link
               to="/upload"
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md font-medium shadow-sm hover:bg-blue-800 transition"
+              className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-md text-sm"
             >
               <FiUpload size={16} />
-              Upload
+              <span className="hidden md:block">Upload</span>
             </Link>
 
             {/* Profile */}
@@ -152,10 +163,7 @@ const Navbar = () => {
               {user.username}
             </span>
 
-            <Link to="/mychannel">
-              My Channel
-            </Link>
-
+          
             {/* Logout */}
             <button
               onClick={logout}

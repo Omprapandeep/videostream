@@ -44,7 +44,7 @@ const Home = () => {
       )
         : videos.length === 0 ? (
 
-          <div className="bg-black h-[calc(100vh-67px)]  flex flex-col items-center justify-center  text-center">
+          <div className="bg-black h-[calc(100vh-66.5px)]  flex flex-col items-center justify-center  text-center">
 
             {/* Illustration */}
             <img

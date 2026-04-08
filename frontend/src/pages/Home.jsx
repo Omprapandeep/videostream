@@ -4,6 +4,7 @@ import VideoCard from '../components/VideoCard'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import noResultImg from "../assets/noresult.jpg";
+import VideoSkeleton from '../components/VideoSkeleton'
 
 const Home = () => {
 
@@ -35,11 +36,11 @@ const Home = () => {
 
     <div >
       {loading ? (
-       <div className="flex justify-center items-center h-[calc(100vh-67px)]">
-
-        <div className="animate-spin rounded-full h-12 w-12 border-b-3 border-red-500"></div>
-
-      </div>
+        <div className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <VideoSkeleton key={i} />
+          ))}
+        </div>
       )
         : videos.length === 0 ? (
 

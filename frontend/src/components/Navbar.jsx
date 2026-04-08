@@ -132,6 +132,11 @@ const Navbar = () => {
         {user ? (
 
           <>
+            
+            <Link to="/feed">
+              Feed
+            </Link>
+            
             {/* Upload */}
             <Link
               to="/upload"

@@ -2,6 +2,7 @@ import Video from "../models/video.model.js";
 import Like from "../models/likes.model.js";
 import Comment from "../models/comment.model.js";
 import cloudinary from "../config/cloudinary.js";
+import Subscription from "../models/subscription.model.js";
 
 export const uploadVideo = async (req, res) => {
     try {
@@ -272,3 +273,71 @@ export const getchannelvideos = async(req,res)=>{
         res.status(500).json({message:"failed to get channel videos",error:err.message})
     }
 };
+
+export const getsubscribedvideos = async(req,res)=>{
+    try{
+      const userId= req.user._id;
+      
+      //add pagination 
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const search = req.query.search || "";
+      const skip = (page-1)*limit;
+
+      //get subscribed channels
+      const subs = await Subscription.find({subscriber:userId}).select("channel");
+      const channelIds = subs.map(sub=>sub.channel);
+     
+       //search filter
+       const searchFilter = {
+        owner:{$in:channelIds},  //only videos from subscribed channels
+        $or:[
+            {title:{$regex:search,$options:"i"}},
+            {description:{$regex:search,$options:"i"}}
+        ]
+       };
+       
+        //total count (for pagination)
+        const totalvideos = await Video.countDocuments(searchFilter);
+
+        //fetch paginated videos
+        const videos = await Video.find(searchFilter)
+        .select("title description thumbnailUrl views createdAt owner") //only select required fields for better performance
+        .populate("owner","username")
+        .sort({createdAt:-1})
+        .skip(skip)
+        .limit(limit)
+        .lean();  //lean for better performance since we are only reading data and not using mongoose document methods
+       
+        //addlikes and comments
+        const videosWithcounts = await Promise.all(
+            videos.map(async(video)=>{
+                const likecount = await Like.countDocuments({video:video._id});
+                const commentcount = await Comment.countDocuments({video:video._id});
+
+                return {
+                    ...video,
+                    likes:likecount,
+                    comments:commentcount
+                };
+            })  
+        );
+        
+        const totalPages = Math.ceil(totalvideos/limit);
+
+
+
+
+        res.status(200).json({
+            message:"Subscribed videos fetched",
+            currentPage:page,
+            totalPages,
+            totalVideos:totalvideos,
+            videos:videosWithcounts
+        });
+
+    }catch(err){
+        res.status(500).json({message:"failed to get subscribed videos",error:err.message})
+    }
+};
+

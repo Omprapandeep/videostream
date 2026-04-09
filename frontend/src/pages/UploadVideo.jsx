@@ -8,7 +8,9 @@ const UploadVideo = () => {
     const [description, setDescription] = useState("");
     const [videoFile, setVideoFile] = useState(null);
     const [loading, setloading] = useState(false);
-    const [progress, setProgress] = useState(0); // NEW
+    const [progress, setProgress] = useState(0);
+    const [dragactive, setdragactive] = useState(false);
+
 
     const handlesubmit = async (e) => {
         e.preventDefault();
@@ -26,8 +28,6 @@ const UploadVideo = () => {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-
-                // NEW (upload progress)
                 onUploadProgress: (progressEvent) => {
                     const percent = Math.round(
                         (progressEvent.loaded * 100) / progressEvent.total
@@ -37,68 +37,150 @@ const UploadVideo = () => {
             });
 
             alert("Video uploaded successfully");
-            console.log(res.data);
 
-        }
-        catch (err) {
+        } catch (err) {
             console.log(err);
             alert("Error uploading video");
-        }
-        finally {
+        } finally {
             setloading(false);
-            setProgress(0); // reset progress
+            setProgress(0);
         }
     }
 
+
+    const handledragover = (e) => {
+        e.preventDefault();
+        setdragactive(true);
+    }
+
+    const handledragleave = (e) => {
+        e.preventDefault();
+        setdragactive(false);
+    }
+
+    const handledrop = (e) => {
+        e.preventDefault();
+        setdragactive(false);
+
+        const file = e.dataTransfer.files[0];
+
+        if (file && file.type.startsWith("video/")) {
+            setVideoFile(file);
+        } else {
+            alert("Please drop a valid video file");
+        }
+
+    }
+
     return (
-        <div className='max-w-lg mx-auto mt-10'>
+        <div className="min-h-[calc(100vh-67px)] flex items-center justify-center px-4 py-8 bg-gray-50">
 
-            <form onSubmit={handlesubmit}>
+            <div className="w-full max-w-xl bg-white rounded-2xl shadow-md p-6 md:p-8">
 
-                <h1 className="text-2xl font-bold mb-5">Upload Video</h1>
+                {/* Title */}
+                <h1 className="text-2xl md:text-3xl font-semibold mb-6 text-gray-800">
+                    Upload Video
+                </h1>
 
-                <input
-                    type="text"
-                    placeholder='Title'
-                    className='border p-2 w-full mb-3 rounded'
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
+                <form onSubmit={handlesubmit} className="space-y-5">
 
-                <textarea
-                    placeholder='Description'
-                    className='border p-2 w-full mb-3 rounded'
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-
-                <input
-                    type="file"
-                    accept="video/*"
-                    className='border p-2 w-full mb-3 rounded'
-                    onChange={(e) => setVideoFile(e.target.files[0])}
-                />
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className={`px-4 py-2 rounded text-white w-full 
-                    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
-                >
-                    {loading ? `Uploading ${progress}%` : "Upload Video"}
-                </button>
-
-                {/* Progress Bar */}
-                {loading && (
-                    <div className="w-full bg-gray-200 rounded mt-4 h-3">
-                        <div
-                            className="bg-blue-600 h-3 rounded transition-all duration-300"
-                            style={{ width: `${progress}%` }}
-                        ></div>
+                    {/* Title Input */}
+                    <div>
+                        <label className="text-sm text-gray-600">Title</label>
+                        <input
+                            type="text"
+                            placeholder='Enter video title'
+                            className='mt-1 border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                        />
                     </div>
-                )}
 
-            </form>
+                    {/* Description */}
+                    <div>
+                        <label className="text-sm text-gray-600">Description</label>
+                        <textarea
+                            rows={2}
+                            placeholder='Write something about your video...'
+                            className='mt-1 border border-gray-300 p-3 w-full rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500'
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                        />
+                    </div>
+
+                    {/* File Upload */}
+                    <div>
+                        <label className="text-sm text-gray-600">Video File</label>
+
+                        <div
+                            onDragOver={handledragover}
+                            onDragLeave={handledragleave}
+                            onDrop={handledrop}
+                            onClick={() => document.getElementById("fileinput").click()}
+                            className={`mt-2 border-2 border-dashed p-6 rounded-lg text-center cursor-pointer transition
+                         ${dragactive ? "border-blue-500 bg-blue-50" : "border-gray-300"}
+                         `}
+                        >   {videoFile ? (
+                            <div className="w-full">
+                                <video
+                                    src={URL.createObjectURL(videoFile)}
+                                    controls
+                                    onClick={(e)=>{e.stopPropagation()}}
+                                    className="w-full max-h-64 sm:max-h-72 md:max-h-50 object-contain rounded-lg shadow-sm"
+                                />
+                                <p className="mt-2 text-sm text-gray-600 truncate">
+                                    {videoFile.name}
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Icon */}
+                                <div className="text-4xl">📁</div>
+                                <p className="text-gray-500">
+                                    Drag & drop video here or click to upload
+                                </p>
+                            </>
+
+                        )}
+
+                        </div>
+
+                        {/* Hidden Input */}
+
+                        <input
+                            id='fileinput'
+                            type="file"
+                            accept="video/*"
+                            className="hidden"
+                            onChange={(e) => setVideoFile(e.target.files[0])}
+                        />
+                    </div>
+
+                    {/* Button */}
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className={`w-full py-3 rounded-lg text-white font-medium transition
+                        ${loading
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-blue-600 hover:bg-blue-700 active:scale-95"
+                            }`}
+                    >
+                        {loading ? `Uploading ${progress}%` : "Upload Video"}
+                    </button>
+
+                    {/* Progress Bar */}
+                    {loading && (
+                        <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div
+                                className="bg-blue-600 h-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                            ></div>
+                        </div>
+                    )}
+
+                </form>
+            </div>
 
         </div>
     )

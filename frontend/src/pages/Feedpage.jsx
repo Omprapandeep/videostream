@@ -78,7 +78,7 @@ const Feed = () => {
     }, [, hasMore, loading]);
 
     return (
-        <div className="p-6 h-[calc(100vh-66.5px)] overflow-y-auto custom-scrollbar">
+        <div className="p-6  ">
 
             <h1 className="text-2xl font-semibold mb-4 text-gray-800">
                 Subscribed Feed

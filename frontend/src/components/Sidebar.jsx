@@ -68,7 +68,7 @@ const Sidebar = ({ open }) => {
     };
 
     return (
-        <div className="bg-white h-[calc(100vh-67px)] sticky top-16 overflow-y-auto border-r p-2">
+        <div className="bg-white h-full  overflow-y-auto border-r p-2">
 
             {/* 🔹 Main Menu */}
             <div className="flex flex-col gap-2">

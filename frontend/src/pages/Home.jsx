@@ -68,7 +68,7 @@ const Home = () => {
           </div>
 
         ) : (
-          <div className='p-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6'>
+          <div className='p-6 grid   grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6'>
             {
               videos.map((video) => {
                 return <VideoCard key={video._id} video={video} />

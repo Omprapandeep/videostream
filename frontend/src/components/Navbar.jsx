@@ -56,14 +56,14 @@ const Navbar = ({ toggle }) => {
   }
 
   return (
-    <nav className='bg-white border-b shadow-sm px-4 md:px-8 py-3 flex items-center justify-between'>
+    <nav className='bg-white/50  backdrop-blur-md border-b border-gray-200 sticky top-0 z-20 shadow-sm px-4 md:px-8 py-3 flex items-center justify-between'>
 
       <div className="flex items-center gap-4">
 
         {/* Hamburger (desktop only) */}
         <button
           onClick={toggle}
-          className="hidden md:block p-2 hover:bg-gray-200 rounded-full"
+          className="hidden cursor-pointer md:block p-2 hover:bg-gray-200 rounded-full"
         >
           <FiMenu size={22} />
         </button>
@@ -80,7 +80,7 @@ const Navbar = ({ toggle }) => {
       <div className="flex-1 max-w-xl mx-8">
         <div className="relative" onClick={(e) => e.stopPropagation()}>{/*  //event bubbling */}
           {suggestions.length > 0 && (
-            <div className="absolute top-full left-0 w-full bg-white border mt-1 rounded-md shadow-lg z-50">
+            <div className="absolute top-full left-0 w-full bg-white/95 backdrop-blur-md border mt-1 rounded-md shadow-lg z-50">
 
               {suggestions.map((video) => (
                 <div
@@ -151,7 +151,7 @@ const Navbar = ({ toggle }) => {
             {/* Upload */}
             <Link
               to="/upload"
-              className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-md text-sm"
+              className="hidden sm:flex items-center gap-2 bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition"
             >
               <FiUpload size={16} />
               <span className="hidden md:block">Upload</span>

@@ -6,17 +6,17 @@ const MainLayout = ({ children }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    <div>
+    <div >
 
       {/* ✅ Navbar FULL WIDTH */}
       <Navbar toggle={() => setOpen(!open)} />
 
       {/* ✅ Below Navbar Layout */}
-      <div className="flex">
+      <div className="flex h-[calc(100vh-67px)] overflow-hidden">
 
         {/* Sidebar */}
         <div
-          className={`hidden md:block h-[calc(100vh-66.5px)] ${
+          className={`hidden md:block h-full overflow-y-auto ${
             open ? "w-56" : "w-15"
           } transition-all duration-200`}
         >
@@ -24,7 +24,7 @@ const MainLayout = ({ children }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-hidden">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
           {children}
         </div>
 

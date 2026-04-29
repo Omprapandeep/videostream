@@ -58,7 +58,7 @@ const Login = () => {
   
       <form
         onSubmit={handleSubmit}
-        className="relative z-10 w-100 rounded-[20px] p-10 flex flex-col "
+        className="relative z-10 w-125 rounded-[20px] p-10 flex flex-col "
         style={{ 
           background:"rgba(255,255,255,0.05)",
           backdropFilter:"blur(24px)",

@@ -5,6 +5,8 @@ import { FaUserCircle } from "react-icons/fa";
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { FiMenu } from "react-icons/fi";
+import logo from "../assets/appreal.png";
+
 
 const Navbar = ({ toggle }) => {
 
@@ -70,7 +72,7 @@ const Navbar = ({ toggle }) => {
 
         {/* Logo */}
         <Link to="/" className='text-2xl font-bold text-red-600 tracking-wide'>
-          VideoTube
+          <img src={logo} alt="Logo" className="logo" />
         </Link>
 
       </div>

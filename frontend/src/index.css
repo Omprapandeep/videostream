@@ -31,3 +31,9 @@
   scrollbar-width: thin;
   scrollbar-color: #444 transparent;
 }
+
+.logo {
+  height: 38px;
+  width: 78px;
+  object-fit: contain;
+}

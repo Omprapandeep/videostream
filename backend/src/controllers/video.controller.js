@@ -49,7 +49,7 @@ export const getAllvideos = async (req, res) => {
 
         //get page & limit from query
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 12;
         const search = req.query.search || "";
         const skip = (page - 1) * limit;
 
@@ -280,7 +280,7 @@ export const getsubscribedvideos = async(req,res)=>{
       
       //add pagination 
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || 12;
       const search = req.query.search || "";
       const skip = (page-1)*limit;
 

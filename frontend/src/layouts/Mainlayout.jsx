@@ -24,7 +24,7 @@ const MainLayout = ({ children }) => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div id="main-scroll" className="flex-1 overflow-y-auto custom-scrollbar">
           {children}
         </div>
 

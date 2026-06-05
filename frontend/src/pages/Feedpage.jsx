@@ -88,7 +88,7 @@ const Feed = () => {
                     className="w-1 h-6 rounded-full shrink-0"
                     style={{ background: "linear-gradient(180deg, #22c55e, #7c3aed)" }}
                 />
-                <h1 className="text-black text-[18px] font-semibold tracking-tight">
+                <h1 className="text-white text-[18px] font-semibold tracking-tight">
                     {search
                         ? <>Results for <span style={{ color: "#a78bfa" }}>"{search}"</span></>
                         : "Subscribed Feed"

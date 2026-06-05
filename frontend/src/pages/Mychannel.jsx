@@ -38,8 +38,8 @@ const Mychannel = () => {
     }
   };
 
+
   const handleedit = (video) => {
-    console.log(video);
     setselectedvideo(video);
     settitle(video.title);
     setdescription(video.description);
@@ -61,177 +61,280 @@ const Mychannel = () => {
       setselectedvideo(null);
       settitle("");
       setdescription("");
+
     }
     catch (err) {
       console.log(err);
     }
   }
 
-return (
-  <div className="p-4 md:p-8 max-w-7xl mx-auto">
+  return (
+    <div className="min-h-full bg-[#0a0a0f] px-4 py-6 md:px-8 max-w-7xl mx-auto ">
 
-    {/* 🔥 Header */}
-    <div className="flex items-center justify-between mb-8">
+      {/* 🔥 Header */}
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div className="flex items-center gap-4">
 
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-linear-to-br from-red-500 to-red-600 text-white flex items-center justify-center text-2xl font-bold shadow">
-          {user?.username?.charAt(0).toUpperCase()}
-        </div>
-
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">
-            {user?.username}
-          </h1>
-          <p className="text-sm text-gray-500">
-            {videos.length} videos uploaded
-          </p>
-        </div>
-      </div>
-
-    </div>
-
-    {/* 🔥 Videos Grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-9">
-
-      {videos.map((video) => (
-       
-       <Link to={`/video/${video._id}` } key={video._id} >
-
-        <div className="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-4 flex flex-col gap-3 group" >
-
-          {/* Thumbnail */}
-          <div className="relative cursor-pointer">
-            <img
-              src={video.thumbnailUrl}
-              alt="thumbnail"
-              className="w-full h-45 object-cover rounded-xl"
-            />
-
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition rounded-xl flex items-center justify-center">
-              <span className="text-white opacity-0 group-hover:opacity-100 transition text-sm">
-                View
-              </span>
-            </div>
+          {/* Avatar */}
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold text-white shrink-0"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #22c55e)", boxShadow: "0 0 24px rgba(124,58,237,0.35)" }}
+          >
+            {user?.username?.charAt(0).toUpperCase()}
           </div>
 
-          {/* Title */}
-          <h2 className="text-sm font-semibold text-gray-800 line-clamp-2">
-            {video.title}
-          </h2>
-
-          {/* Meta */}
-          <div className="flex justify-between text-xs text-gray-500">
-            <span className="flex items-center gap-1">
-              <FaEye /> {video.views}
-            </span>
-            <span>
-              {new Date(video.createdAt).toLocaleDateString()}
-            </span>
+          <div>
+            <h1 className="text-white text-xl font-semibold">{user?.username}</h1>
+            <p className="text-white/40 text-sm mt-0.5">{videos.length} videos uploaded</p>
           </div>
-
-          {/* Actions */}
-          <div className="flex gap-2 mt-2">
-
-            {/* Edit */}
-            <button
-              onClick={(e) => {e.preventDefault(); handleedit(video);}}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium bg-gray-100 hover:bg-gray-200 transition cursor-pointer"
-            >
-              <FaEdit />
-              Edit
-            </button>
-
-            {/* Delete */}
-            <button
-              onClick={(e) => {e.preventDefault(); deletevideo(video._id);}}
-              disabled={deletingid === video._id}
-              className="flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200 transition cursor-pointer"
-            >
-              <FaTrash />
-              {deletingid === video._id ? "..." : "Delete"}
-            </button>
-
-          </div>
-
         </div>
 
+        <Link
+          to="/upload"
+          className="flex items-center gap-2 py-2 px-4 rounded-xl text-[13px] font-medium text-white transition-al hover:opacity-85 "
+          style={{
+            background: "linear-gradient(135deg,#22c55e,#16a34a)",
+            boxShadow: "0 2px 16px rgba(34,197,94,0.28)",
+          }}
+        >
+          <FaVideo size={13} />
+          Upload Video
         </Link>
-      ))}
-
-    </div>
-
-    {/* Empty State */}
-    {videos.length === 0 && (
-      <div className="text-center py-20 text-gray-500">
-
-        <FaVideo className="text-5xl mx-auto mb-4 text-gray-300" />
-
-        <p className="text-lg font-medium">
-          No videos uploaded yet
-        </p>
-
-        <p className="text-sm text-gray-400 mt-1">
-          Upload your first video 🚀
-        </p>
-
       </div>
-    )}
 
-    {/* 🔥 Modal */}
-    {showmodal && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      {/* divider */}
 
-        <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-          onClick={() => setshowmodal(false)}
-        />
+      <div style={{ borderTop: "0.5px solid rgba(124,58,237,0.15)" }} className="mb-8" />
 
-        <div className="relative w-full max-w-md bg-white p-6 rounded-2xl shadow-xl">
+      {/* 🔥 Videos Grid */}
 
-          <h2 className="text-xl font-semibold mb-4 text-gray-800">
-            Edit Video
-          </h2>
+      {/* ── Videos grid ── */}
+      {videos.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          {videos.map(video => (
+            <Link to={`/video/${video._id}`} key={video._id} className="block no-underline group">
+              <div
+                className="rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "0.5px solid rgba(124,58,237,0.15)",
+                  boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = "rgba(124,58,237,0.38)";
+                  e.currentTarget.style.boxShadow = "0 8px 32px rgba(124,58,237,0.15)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = "rgba(124,58,237,0.15)";
+                  e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.3)";
+                }}
+              >
 
-          <label className="text-sm text-gray-600">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => settitle(e.target.value)}
-            className="w-full mt-1 mb-3 border border-gray-300 focus:ring-2 focus:ring-blue-500 p-2.5 rounded-lg outline-none"
-          />
+                {/* Thumbnail */}
+                <div className="relative overflow-hidden bg-black">
+                  <img
+                    src={video.thumbnailUrl}
+                    alt="thumbnail"
+                    className="w-full h-44 object-cover transition-transform duration-500  will-change-transform"
+                  />
+                  {/* Gradient overlay */}
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%)" }}
+                  />
+                  {/* Views badge */}
+                  <div
+                    className="absolute bottom-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] text-white/90"
+                    style={{ background: "rgba(0,0,0,0.60)", border: "0.5px solid rgba(255,255,255,0.10)" }}
+                  >
+                    <FaEye size={10} />
+                    {video.views}
+                  </div>
+                  {/* Date badge */}
+                  <div
+                    className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md text-[11px] text-white/70"
+                    style={{ background: "rgba(0,0,0,0.60)", border: "0.5px solid rgba(255,255,255,0.10)" }}
+                  >
+                    {new Date(video.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
 
-          <label className="text-sm text-gray-600">Description</label>
-          <textarea
-            value={description}
-            onChange={(e) => setdescription(e.target.value)}
-            className="w-full mt-1 mb-4 border border-gray-300 focus:ring-2 focus:ring-blue-500 p-2.5 rounded-lg outline-none"
-          />
+                {/* Content */}
+                <div className="p-3 flex flex-col gap-3">
+                  <h2 className="text-white/90 text-sm font-medium leading-snug line-clamp-2">
+                    {video.title}
+                  </h2>
 
-          <div className="flex justify-end gap-2">
+                  {/* Actions */}
+                  <div className="flex gap-2">
 
-            <button
-              onClick={() => setshowmodal(false)}
-              className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm cursor-pointer"
-            >
-              Cancel
-            </button>
+                    {/* Edit */}
+                    <button
+                      onClick={e => { e.preventDefault(); handleedit(video); }}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[13px] font-medium cursor-pointer transition-all duration-150"
+                      style={{
+                        background: "rgba(124,58,237,0.12)",
+                        border: "0.5px solid rgba(124,58,237,0.25)",
+                        color: "#c4b5fd",
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(124,58,237,0.22)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(124,58,237,0.12)"}
+                    >
+                      <FaEdit size={12} />
+                      Edit
+                    </button>
 
-            <button
-              onClick={handleupdate}
-              className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm shadow transition cursor-pointer"
-            >
-              Save
-            </button>
+                    {/* Delete */}
+                    <button
+                      onClick={e => { e.preventDefault(); deletevideo(video._id); }}
+                      disabled={deletingid === video._id}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[13px] font-medium cursor-pointer transition-all duration-150 disabled:opacity-50"
+                      style={{
+                        background: "rgba(248,113,113,0.08)",
+                        border: "0.5px solid rgba(248,113,113,0.22)",
+                        color: "#f87171",
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = "rgba(248,113,113,0.18)"}
+                      onMouseLeave={e => e.currentTarget.style.background = "rgba(248,113,113,0.08)"}
+                    >
+                      <FaTrash size={12} />
+                      {deletingid === video._id ? "..." : "Delete"}
+                    </button>
 
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {videos.length === 0 && (
+
+        <div className="flex flex-col items-center justify-center py-28 gap-4">
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center"
+            style={{
+              background: "rgba(124,58,,237,0.17)",
+              border: "0.5px solid rgba(124,58,237,0.22)",
+            }}>
+
+            <FaVideo size={32} color="#a78bfa" />
           </div>
 
-        </div>
-      </div>
-    )}
+          <p className="text-white/60 text-[15px] font-medium "> No videos uploaded yet</p>
+          <p className="text-white/30 text-[13px]"> Upload your first video </p>
+          <Link to="/upload"
+            className="mt-2 px-6 py-2.5 rounded-xl text-[13px] font-medium text-white transition-all hover:opacity-85"
+            style={{
+              background: "linear-gradient(135deg,#7c3aed, #22c55e)",
+              boxShadow: "0 2px 16px rgba(124,58,237,0.30)",
+            }}>
 
-  </div>
-);
+            Upload Video
+          </Link>
+
+        </div>
+
+      )}
+
+      {/* 🔥 Modal */}
+      {showmodal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+            onClick={() => setshowmodal(false)}
+          />
+
+          {/* Modal card */}
+          <div
+            className="relative w-full max-w-md p-6 rounded-2xl flex flex-col gap-4"
+            style={{
+              background: "rgba(15,10,30,0.95)",
+              border: "0.5px solid rgba(124,58,237,0.30)",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(124,58,237,0.10)",
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-white text-lg font-semibold">Edit Video</h2>
+              <button
+                onClick={() => setshowmodal(false)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center cursor-pointer transition-all text-white/40 hover:text-white"
+                style={{ background: "rgba(255,255,255,0.06)" }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Title input */}
+            <div>
+              <label className="block text-[11px] uppercase tracking-widest text-white/40 mb-1.5">
+                Title
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={e => settitle(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-[10px] text-[14px] text-white placeholder-white/20 outline-none transition-all duration-200"
+                style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.12)" }}
+                onFocus={e => e.target.style.border = "0.5px solid rgba(124,58,237,0.55)"}
+                onBlur={e => e.target.style.border = "0.5px solid rgba(255,255,255,0.12)"}
+              />
+            </div>
+
+            {/* Description input */}
+            <div>
+              <label className="block text-[11px] uppercase tracking-widest text-white/40 mb-1.5">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={e => setdescription(e.target.value)}
+                rows={3}
+                className="w-full px-3.5 py-2.5 rounded-[10px] text-[14px] text-white placeholder-white/20 outline-none transition-all duration-200 resize-none"
+                style={{ background: "rgba(255,255,255,0.06)", border: "0.5px solid rgba(255,255,255,0.12)" }}
+                onFocus={e => e.target.style.border = "0.5px solid rgba(124,58,237,0.55)"}
+                onBlur={e => e.target.style.border = "0.5px solid rgba(255,255,255,0.12)"}
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-2 mt-1">
+              <button
+                onClick={() => setshowmodal(false)}
+                className="px-4 py-2 rounded-xl text-[13px] font-medium cursor-pointer transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "0.5px solid rgba(255,255,255,0.12)",
+                  color: "rgba(255,255,255,0.55)",
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.10)"}
+                onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleupdate}
+                className="px-4 py-2 rounded-xl text-[13px] font-medium text-white cursor-pointer transition-all hover:opacity-85"
+                style={{
+                  background: "linear-gradient(135deg, #7c3aed, #22c55e)",
+                  boxShadow: "0 2px 16px rgba(124,58,237,0.30)",
+                }}
+              >
+                Save Changes
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
 };
 
 export default Mychannel;

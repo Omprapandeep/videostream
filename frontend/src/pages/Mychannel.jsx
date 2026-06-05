@@ -10,6 +10,7 @@ const Mychannel = () => {
   const [title, settitle] = useState("");
   const [description, setdescription] = useState("");
   const [showmodal, setshowmodal] = useState(false);
+  const [confirmdelete, setconfirmdelete] = useState(null);
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -67,6 +68,8 @@ const Mychannel = () => {
       console.log(err);
     }
   }
+
+
 
   return (
     <div className="min-h-full bg-[#0a0a0f] px-4 py-6 md:px-8 max-w-7xl mx-auto ">
@@ -186,7 +189,7 @@ const Mychannel = () => {
 
                     {/* Delete */}
                     <button
-                      onClick={e => { e.preventDefault(); deletevideo(video._id); }}
+                      onClick={e => { e.preventDefault(); setconfirmdelete(video); }}
                       disabled={deletingid === video._id}
                       className="flex-1 flex items-center justify-center gap-2 py-2 rounded-xl text-[13px] font-medium cursor-pointer transition-all duration-150 disabled:opacity-50"
                       style={{
@@ -333,6 +336,74 @@ const Mychannel = () => {
         </div>
       )}
 
+      {/* 🔥 Delete Confirm Modal */}
+      {confirmdelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)" }}
+            onClick={() => setconfirmdelete(null)}
+          />
+
+          {/* Modal card */}
+          <div
+            className="relative w-full max-w-sm p-6 rounded-2xl flex flex-col gap-4"
+            style={{
+              background: "rgba(15,10,30,0.95)",
+              border: "0.5px solid rgba(248,113,113,0.30)",
+              boxShadow: "0 24px 64px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(248,113,113,0.10)",
+            }}
+          >
+            {/* Icon */}
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl mx-auto"
+              style={{ background: "rgba(248,113,113,0.10)", border: "0.5px solid rgba(248,113,113,0.25)" }}>
+              <FaTrash size={18} color="#f87171" />
+            </div>
+
+            {/* Text */}
+            <div className="text-center">
+              <h2 className="text-white text-base font-semibold mb-1">Delete Video?</h2>
+              <p className="text-white/40 text-[13px] leading-relaxed">
+                <span className="text-white/60 font-medium">"{confirmdelete.title}"</span> will be permanently removed. This cannot be undone.
+              </p>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-2 mt-1">
+              <button
+                onClick={() => setconfirmdelete(null)}
+                className="flex-1 py-2 rounded-xl text-[13px] font-medium cursor-pointer transition-all"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "0.5px solid rgba(255,255,255,0.12)",
+                  color: "rgba(255,255,255,0.55)",
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.10)"}
+                onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.06)"}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  await deletevideo(confirmdelete._id);
+                  setconfirmdelete(null);
+                }}
+                disabled={deletingid === confirmdelete._id}
+                className="flex-1 py-2 rounded-xl text-[13px] font-medium text-white cursor-pointer transition-all hover:opacity-85 disabled:opacity-50"
+                style={{
+                  background: "linear-gradient(135deg, #dc2626, #f87171)",
+                  boxShadow: "0 2px 16px rgba(248,113,113,0.28)",
+                }}
+              >
+                {deletingid === confirmdelete._id? "Deleting..." : "Yes, Delete"}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

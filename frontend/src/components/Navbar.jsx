@@ -1,9 +1,10 @@
 
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useRef, use } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiUpload, FiMenu, FiLogOut } from "react-icons/fi";
+import { FiUpload, FiMenu, FiLogOut,FiX  } from "react-icons/fi";
 import { HiOutlineSearch } from "react-icons/hi";
+// import { FaUser } from "react-icons/fa";
 import api from '../services/api';
 import logo from "../assets/appreal.png";
 
@@ -19,12 +20,16 @@ const Navbar = ({ toggle, mobileToggle }) => {
 
   const [search, setSearch] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [mobilesearchopen ,setmobilesearchopen] = useState(false);  
+  const mobileinputref = useRef(null);
+
+
 
   useEffect(() => {
     const delay = setTimeout(() => {
       if (search.trim()) fetchSuggestions();
       else setSuggestions([]);
-    }, 300);
+    }, 150);
     return () => clearTimeout(delay);
   }, [search]);
 
@@ -33,6 +38,15 @@ const Navbar = ({ toggle, mobileToggle }) => {
     window.addEventListener("click", handleClick);
     return () => window.removeEventListener("click", handleClick);
   }, []);
+
+  useEffect(() => {
+    if(mobilesearchopen){
+      setTimeout(()=>mobileinputref.current?.focus(),50);
+    }else{
+      setSearch("");
+      setSuggestions([]);
+    }
+}, [mobilesearchopen]);
 
   const fetchSuggestions = async () => {
     try {
@@ -54,11 +68,68 @@ const Navbar = ({ toggle, mobileToggle }) => {
     </button>
   );
 
+  const handlesearchsubmit = ()=>{
+    
+    navigate(`/?search=${search}`);
+    setSuggestions([]);
+    setmobilesearchopen(false);
+  }
+ 
+  const Suggestiondropdown = ({inputref})=>(
+   
+            suggestions.length > 0 && (
+              <div
+                className="absolute top-[calc(100%+8px)] left-0 right-0 z-50
+                  rounded-2xl overflow-hidden border border-purple-500/25"
+                style={{
+                  background: "#0f0a1e",
+                  boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
+                }}
+              >
+                {suggestions.map(video => (
+                  <div
+                    key={video._id}
+                    onClick={() => { navigate(`/video/${video._id}`); setSuggestions([]); setSearch("");setmobilesearchopen(false); }}
+                    className="flex items-center gap-3 px-3.5 py-2.5 cursor-pointer
+                      transition-all duration-150"
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(124,58,237,0.12)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <img
+                      src={video.thumbnailUrl}
+                      className="w-13 h-8 object-cover rounded-md shrink-0"
+                      alt=""
+                    />
+                    <span className="text-[13px] text-white/80 truncate">{video.title}</span>
+                  </div>
+                ))}
+              </div>
+            )
+  );
+  
+
+   const IconBtn = ({ onClick, children, className = "" }) => (
+    <button
+      onClick={onClick}
+      className={`w-9 h-9 rounded-xl cursor-pointer flex items-center justify-center
+        transition-all duration-150 border border-purple-500/30 hover:border-purple-500/50 ${className}`}
+      style={{ background: "rgba(124,58,237,0.12)" }}
+      onMouseEnter={e => e.currentTarget.style.background = "rgba(124,58,237,0.22)"}
+      onMouseLeave={e => e.currentTarget.style.background = "rgba(124,58,237,0.12)"}
+    >
+      {children}
+    </button>
+  );
+  
+
   return (
+
+    <>
     <nav
-      className="border-b border-purple-500/20"
+      className="border-b border-purple-500/20 sticky top-0 z-40 "
       style={{
         background: "rgba(10,10,15,0.92)",
+        backdropFilter: "blur(12px)",
         boxShadow: "0 1px 24px rgba(124,58,237,0.08)",
       }}
     >
@@ -66,16 +137,22 @@ const Navbar = ({ toggle, mobileToggle }) => {
 
         {/* ── Left: hamburgers + logo ── */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <HamburgerBtn onClick={mobileToggle} className="flex md:hidden" />
-          <HamburgerBtn onClick={toggle} className="hidden md:flex" />
-          <Link to="/">
-            <img src={logo} alt="Vibe" className="h-9 w-auto" />
-          </Link>
+         {/* Mobile hamburger */}
+            <IconBtn onClick={mobileToggle} className="flex md:hidden">
+              <FiMenu size={17} className="text-purple-400" />
+            </IconBtn>
+            {/* Desktop hamburger */}
+            <IconBtn onClick={toggle} className="hidden md:flex">
+              <FiMenu size={17} className="text-purple-400" />
+            </IconBtn>
+            <Link to="/">
+              <img src={logo} alt="Vibe" className="h-9 w-auto" />
+            </Link>
         </div>
 
-        {/* ── Center: search ── */}
+        {/* ── Center: search desktop only  ── */}
         <div
-          className="flex-1 max-w-xl mx-auto"
+          className="flex-1 max-w-xl mx-auto hidden md:block"
           onClick={e => e.stopPropagation()}
         >
           <div className="relative">
@@ -89,7 +166,7 @@ const Navbar = ({ toggle, mobileToggle }) => {
               value={search}
               onChange={e => setSearch(e.target.value)}
               onKeyDown={e => {
-                if (e.key === "Enter") { navigate(`/?search=${search}`); setSuggestions([]); }
+                if (e.key === "Enter") { handlesearchsubmit(); }
               }}
               className="w-full rounded-full text-[13px] text-white placeholder-white/25
                 outline-none transition-all duration-200"
@@ -110,40 +187,20 @@ const Navbar = ({ toggle, mobileToggle }) => {
               }}
             />
 
-            {/* Suggestions dropdown */}
-            {suggestions.length > 0 && (
-              <div
-                className="absolute top-[calc(100%+8px)] left-0 right-0 z-50
-                  rounded-2xl overflow-hidden border border-purple-500/25"
-                style={{
-                  background: "#0f0a1e",
-                  boxShadow: "0 16px 48px rgba(0,0,0,0.6)",
-                }}
-              >
-                {suggestions.map(video => (
-                  <div
-                    key={video._id}
-                    onClick={() => { navigate(`/video/${video._id}`); setSuggestions([]); setSearch(""); }}
-                    className="flex items-center gap-3 px-3.5 py-2.5 cursor-pointer
-                      transition-all duration-150"
-                    onMouseEnter={e => e.currentTarget.style.background = "rgba(124,58,237,0.12)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                  >
-                    <img
-                      src={video.thumbnailUrl}
-                      className="w-13 h-8 object-cover rounded-md shrink-0"
-                      alt=""
-                    />
-                    <span className="text-[13px] text-white/80 truncate">{video.title}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            <Suggestiondropdown />
+
+          
           </div>
         </div>
 
         {/* ── Right: actions ── */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0 ml-auto md:ml-0 ">
+           
+           {/* Mobile search */}
+           <IconBtn onClick={() =>setmobilesearchopen(true)} className="md:hidden flex">
+             <HiOutlineSearch size={17} className="text-purple-400" />
+           </IconBtn>
+
           {user ? (
             <>
               {/* Upload */}
@@ -162,10 +219,13 @@ const Navbar = ({ toggle, mobileToggle }) => {
               </Link>
 
               {/* User pill */}
-              <div
+              <Link
+               to="/profile"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl
-                  border border-purple-500/28"
+                  border border-purple-500/28  transition-all hover:border-purple-500/50"
                 style={{ background: "rgba(124,58,237,0.12)" }}
+                 onMouseEnter={e => e.currentTarget.style.background = "rgba(124,58,237,0.22)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "rgba(124,58,237,0.12)"}
               >
                 <div
                   className="w-6.5 h-6.5 rounded-full flex items-center justify-center
@@ -177,7 +237,7 @@ const Navbar = ({ toggle, mobileToggle }) => {
                 <span className="hidden md:block text-[13px] font-medium text-purple-300">
                   {user.username}
                 </span>
-              </div>
+              </Link>
 
               {/* Logout */}
               <button
@@ -219,6 +279,91 @@ const Navbar = ({ toggle, mobileToggle }) => {
         </div>
       </div>
     </nav>
+
+     
+     
+      {mobilesearchopen && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col md:hidden"
+          style={{ background: "rgba(10,10,15,0.98)", backdropFilter: "blur(16px)" }}
+        >
+          {/* Top bar */}
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-purple-500/20">
+            <div
+              className="relative flex-1"
+              onClick={e => e.stopPropagation()}
+            >
+              <HiOutlineSearch
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-500 pointer-events-none"
+                size={16}
+              />
+              <input
+                ref={mobileinputref}
+                type="text"
+                placeholder="Search videos..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") handlesearchsubmit(); }}
+                className="w-full rounded-full text-[14px] text-white placeholder-white/30 outline-none"
+                style={{
+                  padding: "10px 16px 10px 40px",
+                  background: "rgba(124,58,237,0.12)",
+                  border: "0.5px solid rgba(124,58,237,0.50)",
+                  boxShadow: "0 0 0 3px rgba(124,58,237,0.10)",
+                }}
+              />
+            </div>
+
+            {/* Close */}
+            <button
+              onClick={() => setmobilesearchopen(false)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0
+                border border-white/10 text-white/50 hover:text-white transition-all"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              <FiX size={17} />
+            </button>
+          </div>
+
+          {/* Suggestions */}
+          {suggestions.length > 0 ? (
+            <div className="flex-1 overflow-y-auto px-4 pt-3">
+              {suggestions.map(video => (
+                <div
+                  key={video._id}
+                  onClick={() => {
+                    navigate(`/video/${video._id}`);
+                    setSuggestions([]);
+                    setSearch("");
+                    setmobilesearchopen(false);
+                  }}
+                  className="flex items-center gap-3 px-3 py-3 rounded-xl cursor-pointer
+                    transition-all duration-150 mb-1"
+                  onMouseEnter={e => e.currentTarget.style.background = "rgba(124,58,237,0.12)"}
+                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                >
+                  <img
+                    src={video.thumbnailUrl}
+                    className="w-16 h-10 object-cover rounded-lg shrink-0"
+                    alt=""
+                  />
+                  <span className="text-[14px] text-white/80">{video.title}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Empty hint */
+            search.trim() === "" && (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3 pb-20">
+                <HiOutlineSearch size={40} className="text-purple-500/30" />
+                <p className="text-white/20 text-sm">Type to search videos</p>
+              </div>
+            )
+          )}
+        </div>
+      )}
+  </>
+
   );
 };
 

@@ -11,7 +11,7 @@ const app = express();
 app.use(
   cors({
     origin:[ "http://localhost:5173",
-    "http://localhost:vercel.app"
+    "https://videostream-ashen-eight.vercel.app/"
     ],
      // Adjust this to your frontend's URL and port
     credentials: true

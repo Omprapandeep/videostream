@@ -10,7 +10,7 @@ import UploadVideo from "./pages/UploadVideo"
 import Mychannel from "./pages/Mychannel"
 import Channelpage from "./pages/Channelpage"
 import Feed from "./pages/Feedpage"
-
+import MyProfile from "./pages/Myprofile"
 
 function App() {
   return (
@@ -55,6 +55,12 @@ function App() {
         <Route path="/channel/:userId" element={
           <MainLayout>
             <Channelpage />
+          </MainLayout>
+        } />
+
+        <Route path="/myprofile" element={
+          <MainLayout>
+            <MyProfile />
           </MainLayout>
         } />
 

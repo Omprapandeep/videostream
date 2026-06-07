@@ -20,6 +20,7 @@ app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/subscriptions", subscriptionroutes);
 
+
 export default app;
 // No database connection here.
 // No app.listen() here.

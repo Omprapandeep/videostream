@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import Video from "../models/video.model.js";
+import Like from "../models/likes.model.js";
 
 export const registerUser = async (req, res) => {
     try {
@@ -32,7 +34,7 @@ export const registerUser = async (req, res) => {
         const user = await User.create({
             username,
             email,
-            password:hashedPassword
+            password: hashedPassword
         });
 
         const userresponse = user.toObject();
@@ -48,38 +50,110 @@ export const registerUser = async (req, res) => {
     }
 }
 
-export const loginUser = async (req, res) =>{
-    try{
-      const {email,password}=req.body;
-      
-        if(!email || !password){
-            return res.status(400).json({message:"All fields are required"});
+export const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
         }
 
         //find user by email
-        const user = await User.findOne({email});
-        if(!user){
-            return res.status(400).json({message:"no user found with this email"});
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: "no user found with this email" });
         }
 
         //compare password
-        const ismatch = await bcrypt.compare(password,user.password);
-        if(!ismatch){
-            return res.status(400).json({message:"Invalid password"});
+        const ismatch = await bcrypt.compare(password, user.password);
+        if (!ismatch) {
+            return res.status(400).json({ message: "Invalid password" });
         }
 
         //create token
-        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"7d"});
-         
-        // 5️⃣ Remove password from response
-    const userResponse = user.toObject();
-    delete userResponse.password;
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
 
-    return res.status(200).json({
-      message: "Login successful",
-      token,
-      user: userResponse
-    });
+        // 5️⃣ Remove password from response
+        const userResponse = user.toObject();
+        delete userResponse.password;
+
+        return res.status(200).json({
+            message: "Login successful",
+            token,
+            user: userResponse
+        });
+
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+
+export const getprofile = async (req, res) => {
+
+    try {
+        const user = await User.findById(req.user.id).select("-password");//to remove password from response
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const videos = await Video.find({ owner: req.user.id });
+
+        const totalViews = videos.reduce((sum, v) => sum + (v.views || 0), 0);
+        // array.reduce((accumulator, currentValue) => {
+        //     return updatedAccumulator;
+        // }, initialValue);
+        
+
+        const videoids= videos.map(v=>v._id);
+        const totalLikes = await Like.countDocuments({video:{$in:videoids}});
+  
+
+
+        res.json({
+            user,
+            stats:{
+                totalvideos:videos.length,
+                totalViews,
+                totalLikes
+            }
+        });
+
+
+
+    } catch (err) {
+        res.status(500).json({ message: "serrorr" });
+    }
+
+}
+
+export const updateProfile = async ( req,res)=>{
+    try{
+      
+        const {username,currentPassword,newPassword} = req.body;
+
+        const user = await User.findById(req.user.id);
+
+        if(username && username !== user.username){
+            const taken = await User.find({username});
+            if(taken.length > 0)return res.status(400).json({message:"Username already taken"});
+            user.username = username;
+        }
+
+        if(newPassword){
+            if(!currentPassword){
+                return res.status(400).json({message:"Current password is required to set new password"});
+            }
+            const ismatch = await bcrypt.compare(currentPassword, user.password);
+            if(!ismatch){
+                return res.status(400).json({message:"Current password is incorrect"});
+            }
+            user.password = await bcrypt.hash(newPassword, await bcrypt.genSalt(10));
+        }
+
+        await user.save();
+        const updatedUser = await User.findById(req.user.id).select("-password");
+        res.json({message:"Profile updated successfully",user:updatedUser});
+        
 
     }catch(err){
         res.status(500).json({ message: "Server error" });

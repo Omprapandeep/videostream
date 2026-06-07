@@ -289,14 +289,14 @@ const VideoPage = () => {
       {/* ════════════════════════
            DESKTOP (lg+)
           ════════════════════════ */}
-      <div className="hidden lg:flex h-full gap-5 px-6 py-4">
+      <div className="hidden lg:flex h-full gap-5 px-6 pt-3">
 
         {/* Left — independent scroll */}
         <div className="flex-1 min-w-0 overflow-y-auto custom-scrollbar pb-10 pr-2 flex flex-col gap-4">
 
           {/* Player */}
           <div
-            className="w-full aspect-video rounded-2xl overflow-hidden bg-black shrink-0"
+            className= "w-full h-11/12 aspect-video rounded-2xl overflow-hidden bg-black shrink-0"
             style={{ border: "0.5px solid rgba(124,58,237,0.20)", boxShadow: "0 0 40px rgba(124,58,237,0.10)" }}
           >
             <video src={video.videoUrl} controls className="w-full h-full object-contain" />
@@ -326,7 +326,7 @@ const VideoPage = () => {
         </div>
 
         {/* Right — independent scroll */}
-        <div className="w-85 shrink-0 overflow-y-auto custom-scrollbar pb-10">
+        <div className="w-90 shrink-0 overflow-y-auto custom-scrollbar pb-10">
           {recommendedList}
         </div>
       </div>
@@ -343,7 +343,7 @@ const VideoPage = () => {
             className="w-full aspect-video rounded-2xl overflow-hidden bg-black shrink-0"
             style={{ border: "0.5px solid rgba(124,58,237,0.20)", boxShadow: "0 0 24px rgba(124,58,237,0.10)" }}
           >
-            <video src={video.videoUrl} controls className="w-full h-full object-contain" />
+            <video  src={video.videoUrl} controls autoPlay muted  loop className="w-full h-full object-contain" />
           </div>
 
           {/* Title */}

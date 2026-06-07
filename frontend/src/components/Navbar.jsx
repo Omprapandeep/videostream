@@ -220,7 +220,7 @@ const Navbar = ({ toggle, mobileToggle }) => {
 
               {/* User pill */}
               <Link
-               to="/profile"
+               to="/myprofile"
                 className="flex items-center gap-2 px-3 py-1.5 rounded-xl
                   border border-purple-500/28  transition-all hover:border-purple-500/50"
                 style={{ background: "rgba(124,58,237,0.12)" }}

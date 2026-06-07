@@ -9,7 +9,13 @@ import subscriptionroutes from "./routes/subscription.routes.js";
 
 const app = express();
 app.use(
-  cors()
+  cors({
+    origin:[ "http://localhost:5173",
+    "http://localhost:vercel.app"
+    ],
+     // Adjust this to your frontend's URL and port
+    credentials: true
+  })
 );
 
 app.use(express.json());

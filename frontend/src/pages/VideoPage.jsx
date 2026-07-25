@@ -63,7 +63,7 @@ const VideoPage = () => {
 
   const fetchRecommended = async () => {
     try {
-      const res = await api.get("/videos/all?limit=5");
+      const res = await api.get("/videos/all?limit=10");
       setRecommended(res.data.videos);
     } catch (err) { console.log(err); }
   };

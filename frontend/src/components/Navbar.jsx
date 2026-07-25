@@ -1,20 +1,19 @@
 
 
-import React, { useState, useEffect,useRef, use } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiUpload, FiMenu, FiLogOut,FiX  } from "react-icons/fi";
+import { FiUpload, FiMenu, FiLogOut, FiX } from "react-icons/fi";
 import { HiOutlineSearch } from "react-icons/hi";
-// import { FaUser } from "react-icons/fa";
 import api from '../services/api';
 import logo from "../assets/appreal.png";
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = ({ toggle, mobileToggle }) => {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user, logout: handleLogout } = useAuth();
 
   const logout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    handleLogout();
     navigate("/login");
   };
 

@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/appreal.png";
+import { useAuth } from "../context/AuthContext";
+
 const Login = () => {
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [error, setError] = useState("");
 
@@ -26,8 +29,7 @@ const Login = () => {
 
       const res = await api.post("/users/login", form);
 
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
+      login(res.data.user, res.data.token);
       navigate("/");
 
     } catch (err) {

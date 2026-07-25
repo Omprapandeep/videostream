@@ -17,12 +17,12 @@ export const uploadVideo = async (req, res) => {
         //extract public_id from cloudinary  
         const publicId = req.file.filename // Extract public_id from the video URL
 
-        // Generate thumbnail URL
+        // Generate thumbnail URL with quality and format optimizations
         const thumbnailUrl = cloudinary.url(publicId, {
             resource_type: "video",
             format: "jpg",
             transformation: [
-                { width: 480, height: 360, crop: "fill" }
+                { width: 480, height: 360, crop: "fill", quality: "auto", fetch_format: "auto" }
             ]
         });
 
@@ -75,20 +75,27 @@ export const getAllvideos = async (req, res) => {
             .limit(limit)
             .lean(); //lean for better performance since we are only reading data and not using mongoose document methods   
 
-        //addlikes and comments
-        const videosWithcounts = await Promise.all(
-            videos.map(async (video) => {
-                const likecount = await Like.countDocuments({ video: video._id });
-                const commentcount = await Comment.countDocuments({ video: video._id });
+        // batch fetch likes and comments counts in parallel
+        const videoIds = videos.map(v => v._id);
+        const [likeCounts, commentCounts] = await Promise.all([
+            Like.aggregate([
+                { $match: { video: { $in: videoIds } } },
+                { $group: { _id: "$video", count: { $sum: 1 } } }
+            ]),
+            Comment.aggregate([
+                { $match: { video: { $in: videoIds } } },
+                { $group: { _id: "$video", count: { $sum: 1 } } }
+            ])
+        ]);
 
-                return {
-                    ...video,
-                    likes: likecount,
-                    comments: commentcount
-                };
+        const likeMap = Object.fromEntries(likeCounts.map(l => [l._id.toString(), l.count]));
+        const commentMap = Object.fromEntries(commentCounts.map(c => [c._id.toString(), c.count]));
 
-            })
-        )
+        const videosWithcounts = videos.map(video => ({
+            ...video,
+            likes: likeMap[video._id.toString()] || 0,
+            comments: commentMap[video._id.toString()] || 0
+        }));
 
         const totalPages = Math.ceil(totalvideos / limit);
 
@@ -309,19 +316,27 @@ export const getsubscribedvideos = async(req,res)=>{
         .limit(limit)
         .lean();  //lean for better performance since we are only reading data and not using mongoose document methods
        
-        //addlikes and comments
-        const videosWithcounts = await Promise.all(
-            videos.map(async(video)=>{
-                const likecount = await Like.countDocuments({video:video._id});
-                const commentcount = await Comment.countDocuments({video:video._id});
+        // batch fetch likes and comments counts in parallel
+        const videoIds = videos.map(v => v._id);
+        const [likeCounts, commentCounts] = await Promise.all([
+            Like.aggregate([
+                { $match: { video: { $in: videoIds } } },
+                { $group: { _id: "$video", count: { $sum: 1 } } }
+            ]),
+            Comment.aggregate([
+                { $match: { video: { $in: videoIds } } },
+                { $group: { _id: "$video", count: { $sum: 1 } } }
+            ])
+        ]);
 
-                return {
-                    ...video,
-                    likes:likecount,
-                    comments:commentcount
-                };
-            })  
-        );
+        const likeMap = Object.fromEntries(likeCounts.map(l => [l._id.toString(), l.count]));
+        const commentMap = Object.fromEntries(commentCounts.map(c => [c._id.toString(), c.count]));
+
+        const videosWithcounts = videos.map(video => ({
+            ...video,
+            likes: likeMap[video._id.toString()] || 0,
+            comments: commentMap[video._id.toString()] || 0
+        }));
         
         const totalPages = Math.ceil(totalvideos/limit);
 

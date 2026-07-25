@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import Video from "../models/video.model.js";
 import Like from "../models/likes.model.js";
+import Subscription from "../models/subscription.model.js";
 
 export const registerUser = async (req, res) => {
     try {
@@ -99,22 +100,18 @@ export const getprofile = async (req, res) => {
         const videos = await Video.find({ owner: req.user.id });
 
         const totalViews = videos.reduce((sum, v) => sum + (v.views || 0), 0);
-        // array.reduce((accumulator, currentValue) => {
-        //     return updatedAccumulator;
-        // }, initialValue);
-        
 
         const videoids= videos.map(v=>v._id);
         const totalLikes = await Like.countDocuments({video:{$in:videoids}});
-  
-
+        const subscribers = await Subscription.countDocuments({channel: req.user.id});
 
         res.json({
             user,
             stats:{
                 totalvideos:videos.length,
                 totalViews,
-                totalLikes
+                totalLikes,
+                subscribers
             }
         });
 

@@ -63,7 +63,7 @@ const VideoPage = () => {
 
   const fetchRecommended = async () => {
     try {
-      const res = await api.get("/videos/all");
+      const res = await api.get("/videos/all?limit=5");
       setRecommended(res.data.videos);
     } catch (err) { console.log(err); }
   };
@@ -299,7 +299,7 @@ const VideoPage = () => {
             className= "w-full h-11/12 aspect-video rounded-2xl overflow-hidden bg-black shrink-0"
             style={{ border: "0.5px solid rgba(124,58,237,0.20)", boxShadow: "0 0 40px rgba(124,58,237,0.10)" }}
           >
-            <video src={video.videoUrl} controls className="w-full h-full object-contain" />
+            <video src={video.videoUrl} controls preload="metadata" className="w-full h-full object-contain" />
           </div>
 
           {/* Title */}
@@ -343,7 +343,7 @@ const VideoPage = () => {
             className="w-full aspect-video rounded-2xl overflow-hidden bg-black shrink-0"
             style={{ border: "0.5px solid rgba(124,58,237,0.20)", boxShadow: "0 0 24px rgba(124,58,237,0.10)" }}
           >
-            <video  src={video.videoUrl} controls autoPlay muted  loop className="w-full h-full object-contain" />
+            <video src={video.videoUrl} controls preload="metadata" className="w-full h-full object-contain" />
           </div>
 
           {/* Title */}

@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import { FaTrash, FaEdit, FaEye, FaVideo } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Mychannel = () => {
+  const { user } = useAuth();
   const [videos, setvideos] = useState([]);
+  const [subscribers, setsubscribers] = useState(0);
   const [deletingid, setdeletingid] = useState(null);
   const [selectedvideo, setselectedvideo] = useState(null);
   const [title, settitle] = useState("");
@@ -12,11 +15,19 @@ const Mychannel = () => {
   const [showmodal, setshowmodal] = useState(false);
   const [confirmdelete, setconfirmdelete] = useState(null);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-
   useEffect(() => {
     fetchmyvideos();
-  }, []);
+    if (user?._id) fetchSubscribers();
+  }, [user]);
+
+  const fetchSubscribers = async () => {
+    try {
+      const res = await api.get(`/subscriptions/subscribers/${user._id}`);
+      setsubscribers(res.data.subscribers);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const fetchmyvideos = async () => {
     try {
@@ -88,7 +99,7 @@ const Mychannel = () => {
 
           <div>
             <h1 className="text-white text-xl font-semibold">{user?.username}</h1>
-            <p className="text-white/40 text-sm mt-0.5">{videos.length} videos uploaded</p>
+            <p className="text-white/40 text-sm mt-0.5">{subscribers} subscribers • {videos.length} videos uploaded</p>
           </div>
         </div>
 

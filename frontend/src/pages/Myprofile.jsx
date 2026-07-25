@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
 import {
-  FaFilm, FaEye, FaHeart,
+  FaFilm, FaEye, FaHeart, FaUser,
   FaEdit, FaLock, FaCheck, FaTimes,
   FaCalendarAlt, FaEnvelope
 } from "react-icons/fa";
 import { FiUpload } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 /* ─────────────────────────────────────────
    Small reusable pieces
@@ -93,6 +94,7 @@ const SectionHeader = ({ icon, title }) => (
 ───────────────────────────────────────── */
 
 const MyProfile = () => {
+  const { updateUser } = useAuth();
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -130,9 +132,8 @@ const MyProfile = () => {
       setUsernameLoading(true);
       const res = await api.put("/users/profile", { username });
       setProfile(res.data.user);
-      // sync localStorage
-      const stored = JSON.parse(localStorage.getItem("user"));
-      localStorage.setItem("user", JSON.stringify({ ...stored, username: res.data.user.username }));
+      // sync global auth context
+      updateUser({ username: res.data.user.username });
       setUsernameMsg({ text: "Username updated!", error: false });
     } catch (err) {
       setUsernameMsg({ text: err.response?.data?.message || "Failed to update.", error: true });
@@ -308,11 +309,12 @@ const MyProfile = () => {
         </div>
 
         {/* ── Stats ── */}
-        <div className="grid grid-cols-3 gap-3 mb-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-2">
           {[
             { icon: <FaFilm size={15} />, label: "Videos", value: stats?.totalvideos ?? 0 },
             { icon: <FaEye size={15} />, label: "Total Views", value: stats?.totalViews ?? 0 },
             { icon: <FaHeart size={15} />, label: "Total Likes", value: stats?.totalLikes ?? 0 },
+            { icon: <FaUser size={15} />, label: "Subscribers", value: stats?.subscribers ?? 0 },
           ].map(s => (
             <div
               key={s.label}

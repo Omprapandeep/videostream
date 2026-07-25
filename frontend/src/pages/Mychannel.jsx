@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Mychannel = () => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [videos, setvideos] = useState([]);
   const [subscribers, setsubscribers] = useState(0);
   const [deletingid, setdeletingid] = useState(null);
@@ -16,9 +16,11 @@ const Mychannel = () => {
   const [confirmdelete, setconfirmdelete] = useState(null);
 
   useEffect(() => {
-    fetchmyvideos();
-    if (user?._id) fetchSubscribers();
-  }, [user]);
+    if (!authLoading) {
+      fetchmyvideos();
+      if (user?._id) fetchSubscribers();
+    }
+  }, [user, authLoading]);
 
   const fetchSubscribers = async () => {
     try {
@@ -81,6 +83,15 @@ const Mychannel = () => {
   }
 
 
+
+  if (authLoading) return (
+    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 rounded-full border-2 border-purple-500/30 border-t-purple-500 animate-spin" />
+        <p className="text-white/25 text-sm">Loading channel...</p>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-full bg-[#0a0a0f] px-4 py-6 md:px-8 max-w-7xl mx-auto ">

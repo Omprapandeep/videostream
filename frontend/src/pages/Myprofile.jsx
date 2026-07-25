@@ -94,7 +94,7 @@ const SectionHeader = ({ icon, title }) => (
 ───────────────────────────────────────── */
 
 const MyProfile = () => {
-  const { updateUser } = useAuth();
+  const { updateUser, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState(null);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -111,7 +111,11 @@ const MyProfile = () => {
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdMsg, setPwdMsg] = useState({ text: "", error: false });
 
-  useEffect(() => { fetchProfile(); }, []);
+  useEffect(() => {
+    if (!authLoading) {
+      fetchProfile();
+    }
+  }, [authLoading]);
 
   const fetchProfile = async () => {
     try {
@@ -170,7 +174,7 @@ const MyProfile = () => {
   };
 
   /* ── Loading ── */
-  if (loading) return (
+  if (authLoading || loading) return (
     <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
       <div className="flex flex-col items-center gap-3">
         <div

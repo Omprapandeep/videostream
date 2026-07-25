@@ -10,7 +10,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Navbar = ({ toggle, mobileToggle }) => {
   const navigate = useNavigate();
-  const { user, logout: handleLogout } = useAuth();
+  const { user, loading: authLoading, logout: handleLogout } = useAuth();
 
   const logout = () => {
     handleLogout();
@@ -200,7 +200,9 @@ const Navbar = ({ toggle, mobileToggle }) => {
              <HiOutlineSearch size={17} className="text-purple-400" />
            </IconBtn>
 
-          {user ? (
+          {authLoading ? (
+            <div className="w-20 h-9 rounded-xl bg-purple-500/10 animate-pulse border border-purple-500/20" />
+          ) : user ? (
             <>
               {/* Upload */}
               <Link
